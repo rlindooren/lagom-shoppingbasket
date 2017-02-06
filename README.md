@@ -7,7 +7,7 @@ While working on this PoC I found the following documentation/code very helpful:
 
 The project was initialized using the Maven archetype:
 ```bash
-$ mvn archetype:generate -DarchetypeGroupId=com.lightbend.lagom \
+mvn archetype:generate -DarchetypeGroupId=com.lightbend.lagom \
   -DarchetypeArtifactId=maven-archetype-lagom-java -DarchetypeVersion=1.2.0
 ```
 
