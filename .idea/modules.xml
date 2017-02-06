@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/cassandra-config/cassandra-config.iml" filepath="$PROJECT_DIR$/cassandra-config/cassandra-config.iml" />
+      <module fileurl="file://$PROJECT_DIR$/shoppingbasket.iml" filepath="$PROJECT_DIR$/shoppingbasket.iml" />
+      <module fileurl="file://$PROJECT_DIR$/shoppingbasket-api/shoppingbasket-api.iml" filepath="$PROJECT_DIR$/shoppingbasket-api/shoppingbasket-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/shoppingbasket-impl/shoppingbasket-impl.iml" filepath="$PROJECT_DIR$/shoppingbasket-impl/shoppingbasket-impl.iml" />
+    </modules>
+  </component>
+</project>
