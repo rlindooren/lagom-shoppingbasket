@@ -148,7 +148,7 @@ public class ShoppingBasketEventProcessor extends ReadSideProcessor<ShoppingBask
     private CompletionStage<List<BoundStatement>> processItemRemovedFromShoppingBasket(
             ItemRemovedFromShoppingBasket event) {
         BoundStatement bindDeleteItem = deleteShoppingBasketItemPs.bind()
-                .setString("shoppingBasketId", event.getShoppingBasketId())
+                .setUUID("shoppingBasketId", UUID.fromString(event.getShoppingBasketId()))
                 .setString("skuId", event.getSkuId());
         return completedStatement(bindDeleteItem);
     }
