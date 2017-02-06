@@ -13,14 +13,9 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="cassandra-config" target="1.8" />
-      <module name="hello-api" target="1.8" />
-      <module name="hello-impl" target="1.8" />
-      <module name="integration-test" target="1.8" />
       <module name="shoppingbasket" target="1.8" />
       <module name="shoppingbasket-api" target="1.8" />
       <module name="shoppingbasket-impl" target="1.8" />
-      <module name="stream-api" target="1.8" />
-      <module name="stream-impl" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
