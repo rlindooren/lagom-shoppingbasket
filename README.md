@@ -1,4 +1,4 @@
-A small proof of concept that I made to get familiar with [Lagom] (https://www.lightbend.com/lagom).
+A small proof of concept of a shopping basket service that I made to become more familiar with [Lagom] (https://www.lightbend.com/lagom).
 
 While working on this PoC I found the following documentation/code very helpful:
 - [Lagom reference manual](http://www.lagomframework.com/documentation/1.2.x/java/Home.html)
