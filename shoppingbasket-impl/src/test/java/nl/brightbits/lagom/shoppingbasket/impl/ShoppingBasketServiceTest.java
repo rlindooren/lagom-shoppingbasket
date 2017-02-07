@@ -35,7 +35,7 @@ public class ShoppingBasketServiceTest {
     }
 
     @Test
-    public void testNormalFlow() throws Exception {
+    public void testShoppingBasketOperations() throws Exception {
         ShoppingBasketService service = server.client(ShoppingBasketService.class);
 
         final String shopId = "1";
@@ -117,5 +117,34 @@ public class ShoppingBasketServiceTest {
                 assertEquals(1, item.getAmount());
             }
         }
+    }
+
+    @Test
+    public void testGetMostRecentShoppingBasket() throws Exception {
+        ShoppingBasketService service = server.client(ShoppingBasketService.class);
+
+        final String shopId = "1";
+        final String customerId = "1";
+
+        // Create the shopping basket
+        CreateShoppingbasketRequest createShoppingbasketRequest = CreateShoppingbasketRequest.builder()
+                .shopId(shopId)
+                .customerId(customerId)
+                .build();
+        final String shoppingBasketId = service.createShoppingBasket()
+                .invoke(createShoppingbasketRequest)
+                .toCompletableFuture().get(5, SECONDS);
+        assertTrue(StringUtils.isNotBlank(shoppingBasketId));
+
+        // It seems that it takes a while before the event is processed and/or the database is updated
+        // TODO: find out what can be done to prevent this wait time (check if there are no pending events?)
+        Thread.sleep(5000);
+
+        GetMostRecentShoppingbasketRequest getMostRecentShoppingbasketRequest = GetMostRecentShoppingbasketRequest.builder()
+                .shopId(shopId)
+                .customerId(customerId)
+                .build();
+        assertEquals(shoppingBasketId, service.getMostRecentShoppingBasket()
+                .invoke(getMostRecentShoppingbasketRequest).toCompletableFuture().get(5, SECONDS));
     }
 }

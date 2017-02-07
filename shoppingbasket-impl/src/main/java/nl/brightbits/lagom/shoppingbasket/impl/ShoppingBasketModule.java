@@ -8,5 +8,6 @@ public class ShoppingBasketModule extends AbstractModule implements ServiceGuice
     @Override
     protected void configure() {
         bindServices(serviceBinding(ShoppingBasketService.class, ShoppingBasketServiceImpl.class));
+        bind(ShoppingBasketRepository.class).to(ShoppingBasketRepositoryImpl.class);
     }
 }

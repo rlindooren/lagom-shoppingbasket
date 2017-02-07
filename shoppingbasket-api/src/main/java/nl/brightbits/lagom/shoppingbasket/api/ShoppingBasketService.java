@@ -22,11 +22,14 @@ public interface ShoppingBasketService extends Service {
 
     ServiceCall<RemoveItemFromShoppingbasketRequest, Done> removeItemFromShoppingBasket(String shoppingBasketId);
 
+    ServiceCall<GetMostRecentShoppingbasketRequest, String> getMostRecentShoppingBasket();
+
     @Override
     default Descriptor descriptor() {
         // @formatter:off
         return named("shoppingbasket").withCalls(
                 restCall(Method.POST, "/api/shoppingbasket", this::createShoppingBasket),
+                restCall(Method.GET, "/api/shoppingbasket/mostRecent", this::getMostRecentShoppingBasket),
                 restCall(Method.GET, "/api/shoppingbasket/:shoppingBasketId", this::getShoppingBasket),
                 restCall(Method.POST, "/api/shoppingbasket/:shoppingBasketId/items", this::addItemToShoppingBasket),
                 restCall(Method.PUT, "/api/shoppingbasket/:shoppingBasketId/items", this::updateItemAmountInShoppingBasket),

@@ -3,6 +3,7 @@ package nl.brightbits.lagom.shoppingbasket.impl;
 import akka.Done;
 import akka.NotUsed;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import com.lightbend.lagom.javadsl.api.transport.NotFound;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import com.lightbend.lagom.javadsl.persistence.ReadSide;
 import nl.brightbits.lagom.shoppingbasket.api.*;
@@ -13,10 +14,14 @@ import java.util.UUID;
 public class ShoppingBasketServiceImpl implements ShoppingBasketService {
 
     private final PersistentEntityRegistry registry;
+    private final ShoppingBasketRepository shoppingBasketRepository;
 
     @Inject
-    public ShoppingBasketServiceImpl(final PersistentEntityRegistry registry, final ReadSide readSide) {
+    public ShoppingBasketServiceImpl(final PersistentEntityRegistry registry,
+                                     final ReadSide readSide,
+                                     final ShoppingBasketRepository shoppingBasketRepository) {
         this.registry = registry;
+        this.shoppingBasketRepository = shoppingBasketRepository;
         registry.register(ShoppingBasketEntity.class);
         readSide.register(ShoppingBasketEventProcessor.class);
     }
@@ -56,5 +61,14 @@ public class ShoppingBasketServiceImpl implements ShoppingBasketService {
         return request -> registry.refFor(ShoppingBasketEntity.class, shoppingBasketId)
                 .ask(new ShoppingBasketCommand.RemoveItemFromShoppingBasket(
                         request.getSkuId()));
+    }
+
+    @Override
+    public ServiceCall<GetMostRecentShoppingbasketRequest, String> getMostRecentShoppingBasket() {
+        return request ->
+                shoppingBasketRepository.getIdOfMostRecentShoppingBasket(request.getShopId(), request.getCustomerId())
+                        .thenApply(uuid -> uuid
+                                .orElseThrow(() -> new NotFound("User doesn't have any shopping baskets"))
+                                .toString());
     }
 }
