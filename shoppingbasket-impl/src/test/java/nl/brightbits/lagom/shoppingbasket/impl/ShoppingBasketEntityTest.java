@@ -49,7 +49,7 @@ public class ShoppingBasketEntityTest {
         // Creating a shopping basket for the second with the same identifier time should fail
         outcome = driver.run(new ShoppingBasketCommand.CreateShoppingBasket(shopId, customerId));
         assertTrue("There are issues: " + outcome.issues(), outcome.issues().isEmpty());
-        assertEquals("Shoppingbasket " + shoppingBasketId + " has already been created",
+        assertEquals("Shopping basket " + shoppingBasketId + " has already been created",
                 ((PersistentEntity.InvalidCommandException)outcome.getReplies().get(0)).message());
     }
 

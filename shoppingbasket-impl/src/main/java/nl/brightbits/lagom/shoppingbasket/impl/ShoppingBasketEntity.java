@@ -12,36 +12,31 @@ public class ShoppingBasketEntity
 
     @Override
     public Behavior initialBehavior(Optional<ShoppingBasketState> snapshotState) {
-        final BehaviorBuilder b = newBehaviorBuilder(snapshotState.orElse(
-                ShoppingBasketState.builder().shoppingBasket(Optional.empty()).build()));
-        addBehaviorForCreateShoppingBasket(b);
-        addBehaviorForGetShoppingBasket(b);
-        addBehaviorForAddItemToShoppingBasket(b);
-        addBehaviorItemAmountUpdatedInShoppingBasket(b);
-        addBehaviorForRemoveItemFromShoppingBasket(b);
-        return b.build();
+        if (snapshotState.isPresent() && snapshotState.get().getShoppingBasket().isPresent()) {
+            return shoppingBasketCreatedBehavior(snapshotState.get());
+        } else {
+            return shoppingBasketNotCreatedBehavior();
+        }
     }
 
-    private void addBehaviorForCreateShoppingBasket(final BehaviorBuilder b) {
+    private Behavior shoppingBasketNotCreatedBehavior() {
+        final BehaviorBuilder b = newBehaviorBuilder(
+                ShoppingBasketState.builder()
+                        .shoppingBasket(Optional.empty())
+                        .build());
+
         b.setCommandHandler(ShoppingBasketCommand.CreateShoppingBasket.class,
-                (cmd, ctx) -> {
-                    if (state().getShoppingBasket().isPresent()) {
-                        ctx.invalidCommand("Shoppingbasket " + entityId() + " has already been created");
-                        return ctx.done();
-                    } else {
-                        return ctx.thenPersist(
-                                ShoppingBasketEvent.ShoppingBasketCreated.builder()
-                                        .id(entityId())
-                                        .shopId(cmd.getShopId())
-                                        .customerId(cmd.getCustomerId())
-                                        .build(),
-                                evt -> ctx.reply(entityId()));
-                    }
-                }
+                (cmd, ctx) -> ctx.thenPersist(
+                        ShoppingBasketEvent.ShoppingBasketCreated.builder()
+                                .id(entityId())
+                                .shopId(cmd.getShopId())
+                                .customerId(cmd.getCustomerId())
+                                .build(),
+                        evt -> ctx.reply(entityId()))
         );
 
-        b.setEventHandler(ShoppingBasketEvent.ShoppingBasketCreated.class,
-                evt -> new ShoppingBasketState(
+        b.setEventHandlerChangingBehavior(ShoppingBasketEvent.ShoppingBasketCreated.class,
+                evt -> shoppingBasketCreatedBehavior(new ShoppingBasketState(
                         Optional.of(
                                 ShoppingBasket.builder()
                                         .id(evt.getId())
@@ -49,22 +44,44 @@ public class ShoppingBasketEntity
                                         .customerId(evt.getCustomerId())
                                         .items(Optional.empty())
                                         .build()
-                        ))
-        );
+                        ))));
+
+        b.setReadOnlyCommandHandler(ShoppingBasketCommand.GetShoppingBasket.class,
+                (cmd, ctx) -> ctx.invalidCommand("Shopping basket hasn't been created yet"));
+
+        b.setReadOnlyCommandHandler(ShoppingBasketCommand.AddItemInShoppingBasket.class,
+                (cmd, ctx) -> ctx.invalidCommand("Shopping basket hasn't been created yet"));
+
+        b.setReadOnlyCommandHandler(ShoppingBasketCommand.UpdateItemAmountInShoppingBasket.class,
+                (cmd, ctx) -> ctx.invalidCommand("Shopping basket hasn't been created yet"));
+
+        b.setReadOnlyCommandHandler(ShoppingBasketCommand.RemoveItemFromShoppingBasket.class,
+                (cmd, ctx) -> ctx.invalidCommand("Shopping basket hasn't been created yet"));
+
+        return b.build();
     }
 
-    private void addBehaviorForGetShoppingBasket(final BehaviorBuilder b) {
+    private Behavior shoppingBasketCreatedBehavior(ShoppingBasketState state) {
+        final BehaviorBuilder b = newBehaviorBuilder(state);
+
+        b.setReadOnlyCommandHandler(ShoppingBasketCommand.CreateShoppingBasket.class,
+                (cmd, ctx) -> ctx.invalidCommand("Shopping basket " + entityId() + " has already been created"));
+
         b.setReadOnlyCommandHandler(ShoppingBasketCommand.GetShoppingBasket.class,
                 (cmd, ctx) -> ctx.reply(state().getShoppingBasket().get()));
+
+        addAddItemInShoppingBasketBehavior(b);
+        addUpdateItemAmountInShoppingBasketBehavior(b);
+        addRemoveItemFromShoppingBasketBehavior(b);
+
+        return b.build();
     }
 
-    private void addBehaviorForAddItemToShoppingBasket(final BehaviorBuilder b) {
+    private void addAddItemInShoppingBasketBehavior(BehaviorBuilder b) {
         b.setCommandHandler(ShoppingBasketCommand.AddItemInShoppingBasket.class,
                 (cmd, ctx) -> {
-                    if (!state().getShoppingBasket().isPresent()) {
-                        ctx.invalidCommand("Shoppingbasket hasn't been created yet");
-                        return ctx.done();
-                    } else if (ShoppingBasketLogic.getAmountForSku(state().getShoppingBasket().get(), cmd.getSkuId()).isPresent()) {
+                    if (ShoppingBasketLogic.getAmountForSku(state().getShoppingBasket().get(), cmd.getSkuId())
+                            .isPresent()) {
                         ctx.invalidCommand("Item has already been added, please update amount only");
                         return ctx.done();
                     } else if (cmd.getInitialAmount() < 1) {
@@ -96,14 +113,11 @@ public class ShoppingBasketEntity
         );
     }
 
-    private void addBehaviorItemAmountUpdatedInShoppingBasket(final BehaviorBuilder b) {
+    private void addUpdateItemAmountInShoppingBasketBehavior(final BehaviorBuilder b) {
         b.setCommandHandler(ShoppingBasketCommand.UpdateItemAmountInShoppingBasket.class,
                 (cmd, ctx) -> {
                     OptionalInt existingAmount = ShoppingBasketLogic.getAmountForSku(state().getShoppingBasket().get(), cmd.getSkuId());
-                    if (!state().getShoppingBasket().isPresent()) {
-                        ctx.invalidCommand("Shoppingbasket hasn't been created yet");
-                        return ctx.done();
-                    } else if (!existingAmount.isPresent()) {
+                    if (!existingAmount.isPresent()) {
                         ctx.invalidCommand("Item has not yet been added, please add it first");
                         return ctx.done();
                     } else if (cmd.getNewAmount() < 1) {
@@ -136,21 +150,15 @@ public class ShoppingBasketEntity
         );
     }
 
-    private void addBehaviorForRemoveItemFromShoppingBasket(final BehaviorBuilder b) {
+    private void addRemoveItemFromShoppingBasketBehavior(final BehaviorBuilder b) {
         b.setCommandHandler(ShoppingBasketCommand.RemoveItemFromShoppingBasket.class,
-                (cmd, ctx) -> {
-                    if (!state().getShoppingBasket().isPresent()) {
-                        ctx.invalidCommand("Shoppingbasket hasn't been created yet");
-                        return ctx.done();
-                    } else {
-                        return ctx.thenPersist(
-                                ShoppingBasketEvent.ItemRemovedFromShoppingBasket.builder()
-                                        .shoppingBasketId(state().getShoppingBasket().get().getId())
-                                        .skuId(cmd.getSkuId())
-                                        .build(),
-                                evt -> ctx.reply(Done.getInstance()));
-                    }
-                });
+                (cmd, ctx) -> ctx.thenPersist(
+                        ShoppingBasketEvent.ItemRemovedFromShoppingBasket.builder()
+                                .shoppingBasketId(state().getShoppingBasket().get().getId())
+                                .skuId(cmd.getSkuId())
+                                .build(),
+                        evt -> ctx.reply(Done.getInstance()))
+        );
 
         b.setEventHandler(ShoppingBasketEvent.ItemRemovedFromShoppingBasket.class,
                 evt -> state().withShoppingBasket(
