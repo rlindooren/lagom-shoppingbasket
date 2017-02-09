@@ -28,7 +28,7 @@ mvn lagom:runAll
 #### Keeping state
 In this implementation the [`ShoppingBasketEntity`] (../master/shoppingbasket-impl/src/main/java/nl/brightbits/lagom/shoppingbasket/impl/ShoppingBasketEntity.java)
 uses the [`ShoppingBasket`]  (../master/shoppingbasket-api/src/main/java/nl/brightbits/lagom/shoppingbasket/api/ShoppingBasket.java) read model to keep its state.
-But in a more serious system it is advisable to not use a read model to keep state. Creating a separate state model allows for more flexibility when it comes to being able to update the read model (which is what CQRS is all about of course :simple_smile:).
+But in a more serious system it is advisable to not use a read model to keep state. Creating a separate state model allows for more flexibility when it comes to being able to update the read model (which is what CQRS is all about of course :smile:).
 
 ## Functionality
 
@@ -36,7 +36,8 @@ It's possible to interact with the shopping basket service using the following c
 
 Create a new shopping basket
 ```bash
-curl -X POST 'http://localhost:9000/api/shoppingbasket' -d '{"shopId": "1", "customerId": "1"}'
+curl -X POST 'http://localhost:9000/api/shoppingbasket' \
+ -d '{"shopId": "1", "customerId": "1"}'
 ```
 _This returns the uuid of the shopping basket_
 
