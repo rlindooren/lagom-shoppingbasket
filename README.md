@@ -47,21 +47,25 @@ curl -X GET 'http://localhost:9000/api/shoppingbasket/<UUID>'
 
 Get the most recent shopping basket of a customer
 ```bash
-curl -v -X GET 'http://localhost:9000/api/shoppingbasket/mostRecent' -d '{"shopId": "1", "customerId": "1"}'
+curl -v -X GET 'http://localhost:9000/api/shoppingbasket/mostRecent' \
+ -d '{"shopId": "1", "customerId": "1"}'
 ```
 _This operation relies only on the read-side, requesting the required data from a Cassandra table instead of from the state of a `PersistentEntity`_
 
 Add an item to the shopping basket
 ```bash
-curl -X POST 'http://localhost:9000/api/shoppingbasket/<UUID>/items' -d '{"skuId": "abc123", "initialAmount": "1"}'
+curl -X POST 'http://localhost:9000/api/shoppingbasket/<UUID>/items' \
+ -d '{"skuId": "abc123", "initialAmount": "1"}'
 ```
 
 Update the amount of an item in the shopping basket
 ```bash
-curl -X PUT 'http://localhost:9000/api/shoppingbasket/<UUID>/items' -d '{"skuId": "abc123", "newAmount": "2"}'
+curl -X PUT 'http://localhost:9000/api/shoppingbasket/<UUID>/items' \
+ -d '{"skuId": "abc123", "newAmount": "2"}'
 ```
 
 Delete an item from the shopping basket
 ```bash
-curl -X DELETE 'http://localhost:9000/api/shoppingbasket/<UUID>/items' -d '{"skuId": "abc123"}'
+curl -X DELETE 'http://localhost:9000/api/shoppingbasket/<UUID>/items' \
+ -d '{"skuId": "abc123"}'
 ```
