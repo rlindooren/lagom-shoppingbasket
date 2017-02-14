@@ -7,6 +7,7 @@ import com.lightbend.lagom.javadsl.api.transport.NotFound;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import com.lightbend.lagom.javadsl.persistence.ReadSide;
 import nl.brightbits.lagom.shoppingbasket.api.*;
+import org.pcollections.PSequence;
 
 import javax.inject.Inject;
 import java.util.UUID;
@@ -70,5 +71,11 @@ public class ShoppingBasketServiceImpl implements ShoppingBasketService {
                         .thenApply(uuid -> uuid
                                 .orElseThrow(() -> new NotFound("User doesn't have any shopping baskets"))
                                 .toString());
+    }
+
+    @Override
+    public ServiceCall<NotUsed, PSequence<ShoppingBasketItem>> getShoppingBasketItems(String shoppingBasketId) {
+        return request ->
+                shoppingBasketRepository.getShoppingBasketItems(UUID.fromString(shoppingBasketId));
     }
 }

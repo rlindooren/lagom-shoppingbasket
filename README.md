@@ -48,8 +48,14 @@ curl -X GET 'http://localhost:9000/api/shoppingbasket/<UUID>'
 
 Get the most recent shopping basket of a customer
 ```bash
-curl -v -X GET 'http://localhost:9000/api/shoppingbasket/mostRecent' \
+curl -X GET 'http://localhost:9000/api/shoppingbasket/mostRecent' \
  -d '{"shopId": "1", "customerId": "1"}'
+```
+_This operation relies only on the read-side, requesting the required data from a Cassandra table instead of from the state of a `PersistentEntity`_
+
+Get the items of a shopping basket
+```bash
+curl -X GET 'http://localhost:9000/api/shoppingbasket/<UUID>/items'
 ```
 _This operation relies only on the read-side, requesting the required data from a Cassandra table instead of from the state of a `PersistentEntity`_
 

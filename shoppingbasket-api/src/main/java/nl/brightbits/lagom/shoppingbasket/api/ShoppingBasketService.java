@@ -6,6 +6,7 @@ import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.transport.Method;
+import org.pcollections.PSequence;
 
 import static com.lightbend.lagom.javadsl.api.Service.named;
 import static com.lightbend.lagom.javadsl.api.Service.restCall;
@@ -15,6 +16,8 @@ public interface ShoppingBasketService extends Service {
     ServiceCall<CreateShoppingbasketRequest, String> createShoppingBasket();
 
     ServiceCall<NotUsed, ShoppingBasket> getShoppingBasket(String shoppingBasketId);
+
+    ServiceCall<NotUsed, PSequence<ShoppingBasketItem>> getShoppingBasketItems(String shoppingBasketId);
 
     ServiceCall<AddItemToShoppingbasketRequest, Done> addItemToShoppingBasket(String shoppingBasketId);
 
@@ -31,6 +34,7 @@ public interface ShoppingBasketService extends Service {
                 restCall(Method.POST, "/api/shoppingbasket", this::createShoppingBasket),
                 restCall(Method.GET, "/api/shoppingbasket/mostRecent", this::getMostRecentShoppingBasket),
                 restCall(Method.GET, "/api/shoppingbasket/:shoppingBasketId", this::getShoppingBasket),
+                restCall(Method.GET, "/api/shoppingbasket/:shoppingBasketId/items", this::getShoppingBasketItems),
                 restCall(Method.POST, "/api/shoppingbasket/:shoppingBasketId/items", this::addItemToShoppingBasket),
                 restCall(Method.PUT, "/api/shoppingbasket/:shoppingBasketId/items", this::updateItemAmountInShoppingBasket),
                 restCall(Method.DELETE, "/api/shoppingbasket/:shoppingBasketId/items", this::removeItemFromShoppingBasket)

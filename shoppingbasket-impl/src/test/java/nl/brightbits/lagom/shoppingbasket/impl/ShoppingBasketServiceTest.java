@@ -7,13 +7,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.pcollections.PSequence;
 
 import static com.lightbend.lagom.javadsl.testkit.ServiceTest.defaultSetup;
 import static com.lightbend.lagom.javadsl.testkit.ServiceTest.startServer;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ShoppingBasketServiceTest {
 
@@ -146,5 +145,75 @@ public class ShoppingBasketServiceTest {
                 .build();
         assertEquals(shoppingBasketId, service.getMostRecentShoppingBasket()
                 .invoke(getMostRecentShoppingbasketRequest).toCompletableFuture().get(5, SECONDS));
+    }
+
+    @Test
+    public void testGetShoppingBasketItemsFromReadStorage() throws Exception {
+        ShoppingBasketService service = server.client(ShoppingBasketService.class);
+
+        final String shopId = "1";
+        final String customerId = "1";
+
+        // Create the shopping basket
+        CreateShoppingbasketRequest createShoppingbasketRequest = CreateShoppingbasketRequest.builder()
+                .shopId(shopId)
+                .customerId(customerId)
+                .build();
+        final String shoppingBasketId = service.createShoppingBasket()
+                .invoke(createShoppingbasketRequest)
+                .toCompletableFuture().get(5, SECONDS);
+
+        // Add an item
+        final String skuId = "1234_a";
+        AddItemToShoppingbasketRequest addItemToShoppingbasketRequest = AddItemToShoppingbasketRequest.builder()
+                .skuId(skuId)
+                .initialAmount(3)
+                .build();
+        service.addItemToShoppingBasket(shoppingBasketId)
+                .invoke(addItemToShoppingbasketRequest)
+                .toCompletableFuture()
+                .get(5, SECONDS);
+
+        // Update the amount
+        UpdateItemAmountInShoppingbasketRequest updateItemAmountInShoppingbasketRequest =
+                UpdateItemAmountInShoppingbasketRequest.builder()
+                        .skuId(skuId)
+                        .newAmount(5)
+                        .build();
+        service.updateItemAmountInShoppingBasket(shoppingBasketId)
+                .invoke(updateItemAmountInShoppingbasketRequest)
+                .toCompletableFuture()
+                .get(5, SECONDS);
+
+        // Add another item
+        final String skuId2 = "1234_b";
+        addItemToShoppingbasketRequest = AddItemToShoppingbasketRequest.builder()
+                .skuId(skuId2)
+                .initialAmount(1)
+                .build();
+        service.addItemToShoppingBasket(shoppingBasketId)
+                .invoke(addItemToShoppingbasketRequest)
+                .toCompletableFuture()
+                .get(5, SECONDS);
+
+        // It seems that it takes a while before the event is processed and/or the database is updated
+        // TODO: find out what can be done to prevent this wait time (check if there are no pending events?)
+        Thread.sleep(5000);
+
+        PSequence<ShoppingBasketItem> shoppingBasketItems =
+                service.getShoppingBasketItems(shoppingBasketId)
+                        .invoke()
+                        .toCompletableFuture().get(5, SECONDS);
+
+        assertEquals(2, shoppingBasketItems.size());
+
+        // TODO: use Hamcrest validators
+        for (ShoppingBasketItem item : shoppingBasketItems) {
+            if (item.getSkuId().equals(skuId)) {
+                assertEquals(5, item.getAmount());
+            } else if (item.getSkuId().equals(skuId2)) {
+                assertEquals(1, item.getAmount());
+            }
+        }
     }
 }
