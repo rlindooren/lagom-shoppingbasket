@@ -13,7 +13,9 @@ import scala.concurrent.duration.FiniteDuration;
 import static com.lightbend.lagom.javadsl.testkit.ServiceTest.defaultSetup;
 import static com.lightbend.lagom.javadsl.testkit.ServiceTest.startServer;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ShoppingBasketServiceTest {
 
@@ -87,14 +89,11 @@ public class ShoppingBasketServiceTest {
         ShoppingBasket shoppingBasket =
                 service.getShoppingBasket(shoppingBasketId).invoke().toCompletableFuture().get(5, SECONDS);
         assertEquals(2, shoppingBasket.getItems().get().size());
-        // TODO: use Hamcrest validators
-        for (ShoppingBasketItem item : shoppingBasket.getItems().get()) {
-            if (item.getSkuId().equals(skuId)) {
-                assertEquals(2, item.getAmount());
-            } else if (item.getSkuId().equals(skuId2)) {
-                assertEquals(1, item.getAmount());
-            }
-        }
+
+        assertThat(shoppingBasket.getItems().get()).containsExactlyInAnyOrder(
+                new ShoppingBasketItem(skuId, 2),
+                new ShoppingBasketItem(skuId2, 1)
+        );
 
         // Remove one item
         RemoveItemFromShoppingbasketRequest removeItemFromShoppingbasketRequest = RemoveItemFromShoppingbasketRequest.builder()
@@ -108,15 +107,8 @@ public class ShoppingBasketServiceTest {
         // Check contents of shopping basket
         shoppingBasket =
                 service.getShoppingBasket(shoppingBasketId).invoke().toCompletableFuture().get(5, SECONDS);
-        assertEquals(1, shoppingBasket.getItems().get().size());
-        // TODO: use Hamcrest validators
-        for (ShoppingBasketItem item : shoppingBasket.getItems().get()) {
-            if (item.getSkuId().equals(skuId)) {
-                fail("Item shouldn't exist anymore");
-            } else if (item.getSkuId().equals(skuId2)) {
-                assertEquals(1, item.getAmount());
-            }
-        }
+
+        assertThat(shoppingBasket.getItems().get()).containsOnly(new ShoppingBasketItem(skuId2, 1));
     }
 
     @Test
@@ -203,16 +195,10 @@ public class ShoppingBasketServiceTest {
                             .invoke()
                             .toCompletableFuture().get(5, SECONDS);
 
-            assertEquals(2, shoppingBasketItems.size());
-
-            // TODO: use Hamcrest validators
-            for (ShoppingBasketItem item : shoppingBasketItems) {
-                if (item.getSkuId().equals(skuId)) {
-                    assertEquals(5, item.getAmount());
-                } else if (item.getSkuId().equals(skuId2)) {
-                    assertEquals(1, item.getAmount());
-                }
-            }
+            assertThat(shoppingBasketItems).containsExactlyInAnyOrder(
+                    new ShoppingBasketItem(skuId, 5),
+                    new ShoppingBasketItem(skuId2, 1)
+            );
         });
     }
 }
