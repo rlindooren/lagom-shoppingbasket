@@ -80,8 +80,8 @@ public class ShoppingBasketEntity
     private void addAddItemInShoppingBasketBehavior(BehaviorBuilder b) {
         b.setCommandHandler(ShoppingBasketCommand.AddItemInShoppingBasket.class,
                 (cmd, ctx) -> {
-                    if (ShoppingBasketLogic.getAmountForSku(state().getShoppingBasket().get(), cmd.getSkuId())
-                            .isPresent()) {
+                    int existingAmount = ShoppingBasketLogic.getAmountForSku(state().getShoppingBasket().get(), cmd.getSkuId());
+                    if (existingAmount > 0) {
                         ctx.invalidCommand("Item has already been added, please update amount only");
                         return ctx.done();
                     } else if (cmd.getInitialAmount() < 1) {
@@ -116,14 +116,14 @@ public class ShoppingBasketEntity
     private void addUpdateItemAmountInShoppingBasketBehavior(final BehaviorBuilder b) {
         b.setCommandHandler(ShoppingBasketCommand.UpdateItemAmountInShoppingBasket.class,
                 (cmd, ctx) -> {
-                    OptionalInt existingAmount = ShoppingBasketLogic.getAmountForSku(state().getShoppingBasket().get(), cmd.getSkuId());
-                    if (!existingAmount.isPresent()) {
+                    int existingAmount = ShoppingBasketLogic.getAmountForSku(state().getShoppingBasket().get(), cmd.getSkuId());
+                    if (existingAmount == 0) {
                         ctx.invalidCommand("Item has not yet been added, please add it first");
                         return ctx.done();
                     } else if (cmd.getNewAmount() < 1) {
                         ctx.invalidCommand("Should at least have one");
                         return ctx.done();
-                    } else if (existingAmount.getAsInt() == cmd.getNewAmount()) {
+                    } else if (existingAmount == cmd.getNewAmount()) {
                         ctx.invalidCommand("Item already has given amount");
                         return ctx.done();
                     } else {
