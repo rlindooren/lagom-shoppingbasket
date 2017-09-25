@@ -8,6 +8,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pcollections.PSequence;
+import scala.concurrent.duration.FiniteDuration;
 
 import static com.lightbend.lagom.javadsl.testkit.ServiceTest.defaultSetup;
 import static com.lightbend.lagom.javadsl.testkit.ServiceTest.startServer;
@@ -135,16 +136,16 @@ public class ShoppingBasketServiceTest {
                 .toCompletableFuture().get(5, SECONDS);
         assertTrue(StringUtils.isNotBlank(shoppingBasketId));
 
-        // It seems that it takes a while before the event is processed and/or the database is updated
-        // TODO: find out what can be done to prevent this wait time (check if there are no pending events?)
-        Thread.sleep(5000);
-
         GetMostRecentShoppingbasketRequest getMostRecentShoppingbasketRequest = GetMostRecentShoppingbasketRequest.builder()
                 .shopId(shopId)
                 .customerId(customerId)
                 .build();
-        assertEquals(shoppingBasketId, service.getMostRecentShoppingBasket()
-                .invoke(getMostRecentShoppingbasketRequest).toCompletableFuture().get(5, SECONDS));
+
+        ServiceTest.eventually(new FiniteDuration(30, SECONDS), () ->
+                assertEquals(shoppingBasketId,
+                        service.getMostRecentShoppingBasket()
+                                .invoke(getMostRecentShoppingbasketRequest).toCompletableFuture().get())
+        );
     }
 
     @Test
@@ -196,24 +197,22 @@ public class ShoppingBasketServiceTest {
                 .toCompletableFuture()
                 .get(5, SECONDS);
 
-        // It seems that it takes a while before the event is processed and/or the database is updated
-        // TODO: find out what can be done to prevent this wait time (check if there are no pending events?)
-        Thread.sleep(5000);
+        ServiceTest.eventually(new FiniteDuration(30, SECONDS), () -> {
+            PSequence<ShoppingBasketItem> shoppingBasketItems =
+                    service.getShoppingBasketItems(shoppingBasketId)
+                            .invoke()
+                            .toCompletableFuture().get(5, SECONDS);
 
-        PSequence<ShoppingBasketItem> shoppingBasketItems =
-                service.getShoppingBasketItems(shoppingBasketId)
-                        .invoke()
-                        .toCompletableFuture().get(5, SECONDS);
+            assertEquals(2, shoppingBasketItems.size());
 
-        assertEquals(2, shoppingBasketItems.size());
-
-        // TODO: use Hamcrest validators
-        for (ShoppingBasketItem item : shoppingBasketItems) {
-            if (item.getSkuId().equals(skuId)) {
-                assertEquals(5, item.getAmount());
-            } else if (item.getSkuId().equals(skuId2)) {
-                assertEquals(1, item.getAmount());
+            // TODO: use Hamcrest validators
+            for (ShoppingBasketItem item : shoppingBasketItems) {
+                if (item.getSkuId().equals(skuId)) {
+                    assertEquals(5, item.getAmount());
+                } else if (item.getSkuId().equals(skuId2)) {
+                    assertEquals(1, item.getAmount());
+                }
             }
-        }
+        });
     }
 }
