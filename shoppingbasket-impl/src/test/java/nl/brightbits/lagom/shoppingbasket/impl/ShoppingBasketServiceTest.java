@@ -25,7 +25,12 @@ public class ShoppingBasketServiceTest {
     public static void setUp() {
         server = startServer(defaultSetup()
                 .withCluster(false)
-                .withCassandra(true));
+                .withCassandra(true)
+                .configureBuilder(guiceApplicationBuilder ->
+                    // see: https://groups.google.com/d/msg/lagom-framework/WHgHES1Pmcs/K8c8M51cDAAJ
+                    // and: https://github.com/lagom/lagom/issues/634
+                    guiceApplicationBuilder.configure("cassandra-query-journal.eventual-consistency-delay", "0s")
+        ));
     }
 
     @AfterClass
