@@ -3,6 +3,7 @@ package nl.brightbits.lagom.shoppingbasket.impl;
 import akka.Done;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 import nl.brightbits.lagom.shoppingbasket.api.ShoppingBasket;
+import org.pcollections.TreePVector;
 
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -42,7 +43,7 @@ public class ShoppingBasketEntity
                                         .id(evt.getId())
                                         .shopId(evt.getShopId())
                                         .customerId(evt.getCustomerId())
-                                        .items(Optional.empty())
+                                        .items(TreePVector.empty())
                                         .build()
                         ))));
 

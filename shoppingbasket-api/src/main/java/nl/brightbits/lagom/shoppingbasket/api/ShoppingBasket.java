@@ -31,5 +31,5 @@ public class ShoppingBasket implements Jsonable {
     String customerId;
 
     @NonNull
-    Optional<PSequence<ShoppingBasketItem>> items;
+    PSequence<ShoppingBasketItem> items;
 }

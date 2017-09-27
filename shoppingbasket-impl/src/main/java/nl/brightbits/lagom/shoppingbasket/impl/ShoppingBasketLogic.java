@@ -4,7 +4,6 @@ import nl.brightbits.lagom.shoppingbasket.api.ShoppingBasket;
 import nl.brightbits.lagom.shoppingbasket.api.ShoppingBasketItem;
 import org.pcollections.TreePVector;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ShoppingBasketLogic {
@@ -18,10 +17,9 @@ public class ShoppingBasketLogic {
      * @return a new immutable shopping basket with the added item
      */
     public static ShoppingBasket addItemToShoppingBasket(ShoppingBasket shoppingBasket, String skuId, int amount) {
-        return shoppingBasket.withItems(Optional.of(
-                removeItemFromShoppingBasket(shoppingBasket, skuId)
-                        .getItems().get().plus(new ShoppingBasketItem(skuId, amount))
-                )
+        ShoppingBasket shoppingBasketWithoutItem = removeItemFromShoppingBasket(shoppingBasket, skuId);
+        return shoppingBasketWithoutItem.withItems(
+                shoppingBasketWithoutItem.getItems().plus(new ShoppingBasketItem(skuId, amount))
         );
     }
 
@@ -31,18 +29,17 @@ public class ShoppingBasketLogic {
      * @return a new immutable shopping basket without the removed item
      */
     public static ShoppingBasket removeItemFromShoppingBasket(ShoppingBasket shoppingBasket, String skuId) {
-        return shoppingBasket.withItems(Optional.of(
+        return shoppingBasket.withItems(
                 TreePVector.from(
                         shoppingBasket.getItems()
-                                .orElseGet(TreePVector::empty)
                                 .stream().filter(shoppingBasketItem -> !shoppingBasketItem.getSkuId().equals(skuId))
                                 .collect(Collectors.toList())
                 )
-        ));
+        );
     }
 
     public static int getAmountForSku(ShoppingBasket shoppingBasket, String skuId) {
-        return shoppingBasket.getItems().orElseGet(TreePVector::empty)
+        return shoppingBasket.getItems()
                 .stream().filter(shoppingBasketItem -> shoppingBasketItem.getSkuId().equals(skuId))
                 .map(ShoppingBasketItem::getAmount)
                 .reduce((total, itemAmount) -> total + itemAmount).orElse(0);

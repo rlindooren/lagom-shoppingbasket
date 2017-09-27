@@ -88,9 +88,9 @@ public class ShoppingBasketServiceTest {
         // Check contents of shopping basket
         ShoppingBasket shoppingBasket =
                 service.getShoppingBasket(shoppingBasketId).invoke().toCompletableFuture().get(5, SECONDS);
-        assertEquals(2, shoppingBasket.getItems().get().size());
+        assertEquals(2, shoppingBasket.getItems().size());
 
-        assertThat(shoppingBasket.getItems().get()).containsExactlyInAnyOrder(
+        assertThat(shoppingBasket.getItems()).containsExactlyInAnyOrder(
                 new ShoppingBasketItem(skuId, 2),
                 new ShoppingBasketItem(skuId2, 1)
         );
@@ -108,7 +108,7 @@ public class ShoppingBasketServiceTest {
         shoppingBasket =
                 service.getShoppingBasket(shoppingBasketId).invoke().toCompletableFuture().get(5, SECONDS);
 
-        assertThat(shoppingBasket.getItems().get()).containsOnly(new ShoppingBasketItem(skuId2, 1));
+        assertThat(shoppingBasket.getItems()).containsOnly(new ShoppingBasketItem(skuId2, 1));
     }
 
     @Test

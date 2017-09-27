@@ -84,8 +84,8 @@ public class ShoppingBasketEntityTest {
         // Check that is has been added to the state
         outcome = driver.run(new ShoppingBasketCommand.GetShoppingBasket());
         assertTrue("There are issues: " + outcome.issues(), outcome.issues().isEmpty());
-        assertEquals(1, ((ShoppingBasket)outcome.getReplies().get(0)).getItems().get().size());
-        ShoppingBasketItem item = ((ShoppingBasket)outcome.getReplies().get(0)).getItems().get().get(0);
+        assertEquals(1, ((ShoppingBasket)outcome.getReplies().get(0)).getItems().size());
+        ShoppingBasketItem item = ((ShoppingBasket)outcome.getReplies().get(0)).getItems().get(0);
         assertEquals(skuId, item.getSkuId());
         assertEquals(2, item.getAmount());
 
@@ -129,8 +129,8 @@ public class ShoppingBasketEntityTest {
         // Check that there is still one item only
         outcome = driver.run(new ShoppingBasketCommand.GetShoppingBasket());
         assertTrue("There are issues: " + outcome.issues(), outcome.issues().isEmpty());
-        assertEquals(1, ((ShoppingBasket)outcome.getReplies().get(0)).getItems().get().size());
-        ShoppingBasketItem item = ((ShoppingBasket)outcome.getReplies().get(0)).getItems().get().get(0);
+        assertEquals(1, ((ShoppingBasket)outcome.getReplies().get(0)).getItems().size());
+        ShoppingBasketItem item = ((ShoppingBasket)outcome.getReplies().get(0)).getItems().get(0);
         assertEquals(skuId, item.getSkuId());
         assertEquals(2, item.getAmount());
     }
@@ -157,7 +157,7 @@ public class ShoppingBasketEntityTest {
         // Check that is has been added to the state
         outcome = driver.run(new ShoppingBasketCommand.GetShoppingBasket());
         assertTrue("There are issues: " + outcome.issues(), outcome.issues().isEmpty());
-        assertEquals(1, ((ShoppingBasket)outcome.getReplies().get(0)).getItems().get().size());
+        assertEquals(1, ((ShoppingBasket)outcome.getReplies().get(0)).getItems().size());
 
         // Remove the product
         outcome = driver.run(new ShoppingBasketCommand.RemoveItemFromShoppingBasket(skuId));
@@ -167,6 +167,6 @@ public class ShoppingBasketEntityTest {
         // Check that it has been removed from the state
         outcome = driver.run(new ShoppingBasketCommand.GetShoppingBasket());
         assertTrue("There are issues: " + outcome.issues(), outcome.issues().isEmpty());
-        assertEquals(0, ((ShoppingBasket)outcome.getReplies().get(0)).getItems().get().size());
+        assertEquals(0, ((ShoppingBasket)outcome.getReplies().get(0)).getItems().size());
     }
 }
