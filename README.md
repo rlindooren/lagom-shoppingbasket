@@ -4,8 +4,8 @@ A small proof of concept of a shopping basket service that I made to become more
 
 While working on this PoC I found the following documentation/code very helpful:
 - [Lagom reference manual](http://www.lagomframework.com/documentation/1.2.x/java/Home.html)
-- [The Lagom Framework for reactive microservices] (http://musigma.org/java/2016/11/14/lagom.html) by Matt Sicker
-- [Lagom's Java chirper template] (https://github.com/lagom/activator-lagom-java-chirper)
+- [The Lagom Framework for reactive microservices](http://musigma.org/java/2016/11/14/lagom.html) by Matt Sicker
+- [Lagom's Java chirper template](https://github.com/lagom/activator-lagom-java-chirper)
 
 #### Initial setup
 The project was initialized using the Maven archetype:
@@ -16,7 +16,7 @@ mvn archetype:generate -DarchetypeGroupId=com.lightbend.lagom \
 
 #### Lombok
 Lombok is being used to automatically generate immutable PoJo's.
-In IntelliJ you need to install a [plugin] (https://plugins.jetbrains.com/idea/plugin/6317-lombok-plugin) to make this work.
+In IntelliJ you need to install a [plugin](https://plugins.jetbrains.com/idea/plugin/6317-lombok-plugin) to make this work.
 Lightbend advises to make use of the Immutables library. But this currently requires some additional configuration steps in IntelliJ, which I found too cumbersome. 
 
 #### Running
@@ -26,8 +26,8 @@ mvn lagom:runAll
 ```
 
 #### Keeping state
-In this implementation the [`ShoppingBasketEntity`] (../master/shoppingbasket-impl/src/main/java/nl/brightbits/lagom/shoppingbasket/impl/ShoppingBasketEntity.java)
-uses the [`ShoppingBasket`]  (../master/shoppingbasket-api/src/main/java/nl/brightbits/lagom/shoppingbasket/api/ShoppingBasket.java) read model to keep its state.
+In this implementation the [`ShoppingBasketEntity`](../master/shoppingbasket-impl/src/main/java/nl/brightbits/lagom/shoppingbasket/impl/ShoppingBasketEntity.java)
+uses the [`ShoppingBasket`](../master/shoppingbasket-api/src/main/java/nl/brightbits/lagom/shoppingbasket/api/ShoppingBasket.java) read model to keep its state.
 But in a more serious system it is advisable to not use a read model to keep state. Creating a separate state model allows for more flexibility when it comes to being able to update the read model (which is what CQRS is all about of course :smile:).
 
 ## Functionality
