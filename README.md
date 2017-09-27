@@ -1,4 +1,4 @@
-A small proof of concept of a shopping basket service that I made to become more familiar with [Lagom] (https://www.lightbend.com/lagom).
+A small proof of concept of a shopping basket service that I made to become more familiar with [Lagom](https://www.lightbend.com/lagom).
 
 ## Notes
 
